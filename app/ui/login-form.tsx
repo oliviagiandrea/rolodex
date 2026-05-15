@@ -1,16 +1,16 @@
 "use client";
 
-import { lusitana } from "@/app/ui/fonts";
+import { useActionState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   AtSymbolIcon,
   KeyIcon,
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
-import { Button } from "./button";
-import { useActionState } from "react";
 import { authenticate } from "@/app/lib/actions";
-import { useSearchParams } from "next/navigation";
+import { lusitana } from "@/app/ui/fonts";
+import { Button } from "./button";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
@@ -71,7 +71,11 @@ export default function LoginForm() {
         <Button className="mt-4 w-full" aria-disabled={isPending}>
           Log in <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
         </Button>
-        <div className="flex h-8 items-end space-x-1">
+        <div
+          className="flex h-8 items-end space-x-1"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {errorMessage && (
             <>
               <ExclamationCircleIcon className="h-5 w-5 text-red-500" />
