@@ -1,11 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import {
   CheckIcon,
   ClockIcon,
-  CurrencyDollarIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { updateCall, State } from "@/app/lib/actions";
@@ -22,6 +21,20 @@ export default function EditCallForm({
   const initialState: State = { message: null, errors: {} };
   const updateCallWithId = updateCall.bind(null, call.id);
   const [state, formAction] = useActionState(updateCallWithId, initialState);
+  const [company, setCompany] = useState("");
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => {
+    const contact = contacts.find((item) => item.id === call.contact_id);
+    setCompany(contact?.company ?? call.company ?? "");
+    setPhone(contact?.phone ?? call.phone ?? "");
+  }, [call.contact_id, call.company, call.phone, contacts]);
+
+  const handleContactChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const contact = contacts.find((item) => item.id === event.target.value);
+    setCompany(contact?.company ?? "");
+    setPhone(contact?.phone ?? "");
+  };
 
   return (
     <form action={formAction}>
@@ -38,6 +51,7 @@ export default function EditCallForm({
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue={call.contact_id}
               aria-describedby="contact-error"
+              onChange={handleContactChange}
             >
               <option value="" disabled>
                 Select a contact
@@ -60,8 +74,62 @@ export default function EditCallForm({
           </div>
         </div>
 
+        {/* Contact Company */}
+        <div className="mb-4">
+          <label htmlFor="company" className="mb-2 block text-sm font-medium">
+            Company
+          </label>
+          <div className="relative">
+            <input
+              id="company"
+              name="company"
+              type="text"
+              value={company}
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              aria-describedby="company-error"
+              readOnly
+            />
+            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          </div>
+          <div id="company-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.company &&
+              state.errors.company.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
+        {/* Contact Phone */}
+        <div className="mb-4">
+          <label htmlFor="phone" className="mb-2 block text-sm font-medium">
+            Phone Number
+          </label>
+          <div className="relative">
+            <input
+              id="phone"
+              name="phone"
+              type="text"
+              value={phone}
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+              aria-describedby="phone-error"
+              readOnly
+            />
+            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          </div>
+          <div id="phone-error" aria-live="polite" aria-atomic="true">
+            {state.errors?.phone &&
+              state.errors.phone.map((error: string) => (
+                <p className="mt-2 text-sm text-red-500" key={error}>
+                  {error}
+                </p>
+              ))}
+          </div>
+        </div>
+
         {/* Call Status */}
-        <fieldset>
+        <fieldset className="mb-4">
           <legend className="mb-2 block text-sm font-medium">
             Set the call status
           </legend>
@@ -129,6 +197,23 @@ export default function EditCallForm({
               ))}
           </div>
         </fieldset>
+
+        {/* Call Notes */}
+        <div className="mb-4">
+          <label htmlFor="notes" className="mb-2 block text-sm font-medium">
+            Notes
+          </label>
+          <div className="relative">
+            <input
+              id="notes"
+              name="notes"
+              type="text"
+              value={call.notes}
+              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+            />
+            <UserCircleIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500" />
+          </div>
+        </div>
 
         <div aria-live="polite" aria-atomic="true">
           {state.message ? (

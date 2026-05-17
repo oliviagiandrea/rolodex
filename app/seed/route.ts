@@ -37,6 +37,7 @@ async function seedCalls() {
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       contact_id UUID NOT NULL,
       status VARCHAR(255) NOT NULL,
+      notes VARCHAR(255) NOT NULL,
       date DATE NOT NULL
     );
   `;
@@ -44,8 +45,8 @@ async function seedCalls() {
   const insertedCalls = await Promise.all(
     calls.map(
       (call) => sql`
-        INSERT INTO calls (contact_id, status, date)
-        VALUES (${call.contact_id}, ${call.status}, ${call.date})
+        INSERT INTO calls (contact_id, status, notes, date)
+        VALUES (${call.contact_id}, ${call.status}, ${call.notes}, ${call.date})
         ON CONFLICT (id) DO NOTHING;
       `,
     ),
@@ -61,15 +62,16 @@ async function seedContacts() {
     CREATE TABLE IF NOT EXISTS contacts (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) NOT NULL
+      company VARCHAR(255) NOT NULL,
+      phone VARCHAR(255) NOT NULL
     );
   `;
 
   const insertedContacts = await Promise.all(
     contacts.map(
       (contact) => sql`
-        INSERT INTO contacts (id, name, email)
-        VALUES (${contact.id}, ${contact.name}, ${contact.email})
+        INSERT INTO contacts (id, name, company, phone)
+        VALUES (${contact.id}, ${contact.name}, ${contact.company}, ${contact.phone})
         ON CONFLICT (id) DO NOTHING;
       `,
     ),

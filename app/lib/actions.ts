@@ -12,6 +12,9 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 export type State = {
   errors?: {
     contactId?: string[];
+    name?: string[];
+    company?: string[];
+    phone?: string[];
     status?: string[];
   };
   message?: string | null;
@@ -22,9 +25,19 @@ const FormSchema = z.object({
   contactId: z.string({
     invalid_type_error: "Please select a contact.",
   }),
-  status: z.enum(["return", "pending", "lw"], {
-    invalid_type_error: "Please select an call status.",
+  name: z.string({
+    invalid_type_error: "Please enter a name.",
   }),
+  company: z.string({
+    invalid_type_error: "Please enter a company.",
+  }),
+  phone: z.string({
+    invalid_type_error: "Please enter a phone number.",
+  }),
+  status: z.enum(["return", "pending", "lw"], {
+    invalid_type_error: "Please select a call status.",
+  }),
+  notes: z.string().optional(),
   date: z.string(),
 });
 
@@ -35,6 +48,9 @@ export async function createCall(prevState: State, formData: FormData) {
   // Validate form using Zod
   const validatedFields = CreateCall.safeParse({
     contactId: formData.get("contactId"),
+    name: formData.get("name"),
+    company: formData.get("company"),
+    phone: formData.get("phone"),
     status: formData.get("status"),
   });
 
@@ -47,14 +63,15 @@ export async function createCall(prevState: State, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { contactId, status } = validatedFields.data;
+  const { contactId, name, company, phone, status, notes } =
+    validatedFields.data;
   const date = new Date().toISOString().split("T")[0];
 
   // Insert data into the database
   try {
     await sql`
-      INSERT INTO calls (contact_id, status, date)
-      VALUES (${contactId}, ${status}, ${date})
+      INSERT INTO calls (contact_id, contact_name, company, phone, status, notes, date)
+      VALUES (${contactId}, ${name}, ${company}, ${phone}, ${status}, ${notes ? notes : ""}, ${date})
     `;
   } catch (error) {
     // If a database error occurs, return a more specific error.
@@ -75,6 +92,9 @@ export async function updateCall(
 ) {
   const validatedFields = UpdateCall.safeParse({
     contactId: formData.get("contactId"),
+    name: formData.get("name"),
+    company: formData.get("company"),
+    phone: formData.get("phone"),
     status: formData.get("status"),
   });
 
@@ -85,12 +105,13 @@ export async function updateCall(
     };
   }
 
-  const { contactId, status } = validatedFields.data;
+  const { contactId, name, company, phone, status, notes } =
+    validatedFields.data;
 
   try {
     await sql`
       UPDATE calls
-      SET contact_id = ${contactId}, status = ${status}
+      SET contact_id = ${contactId}, contact_name=${name}, company = ${company}, phone = ${phone}, status = ${status}, notes = ${notes ? notes : ""}
       WHERE id = ${id}
     `;
   } catch (error) {

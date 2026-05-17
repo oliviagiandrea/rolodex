@@ -4,64 +4,9 @@ import {
   ContactsTableType,
   CallForm,
   CallsTable,
-  LatestCall,
 } from "./definitions";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
-
-export async function fetchLatestCalls() {
-  try {
-    const data = await sql<LatestCall[]>`
-      SELECT contacts.name, contacts.email, calls.id
-      FROM calls
-      JOIN contacts ON calls.contact_id = contacts.id
-      ORDER BY calls.date DESC
-      LIMIT 5`;
-
-    const latestCalls = data.map((call) => ({
-      ...call,
-    }));
-    return latestCalls;
-  } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch the latest calls.");
-  }
-}
-
-export async function fetchCardData() {
-  try {
-    const callCountPromise = sql`SELECT COUNT(*) FROM calls`;
-    const contactCountPromise = sql`SELECT COUNT(*) FROM contacts`;
-    const callStatusPromise = sql`SELECT
-      COUNT(CASE WHEN status = 'return' THEN 1 END) AS "return",
-      COUNT(CASE WHEN status = 'pending' THEN 1 END) AS "pending",
-      COUNT(CASE WHEN status = 'lw' THEN 1 END) AS "lw"
-      FROM calls`;
-
-    const data = await Promise.all([
-      callCountPromise,
-      contactCountPromise,
-      callStatusPromise,
-    ]);
-
-    const numberOfCalls = Number(data[0][0].count ?? "0");
-    const numberOfContacts = Number(data[1][0].count ?? "0");
-    const totalReturnCalls = Number(data[2][0].return ?? 0);
-    const totalPendingCalls = Number(data[2][0].pending ?? 0);
-    const totalLWCalls = Number(data[2][0].lw ?? 0);
-
-    return {
-      numberOfContacts,
-      numberOfCalls,
-      totalReturnCalls,
-      totalPendingCalls,
-      totalLWCalls,
-    };
-  } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch card data.");
-  }
-}
 
 const ITEMS_PER_PAGE = 6;
 export async function fetchFilteredCalls(query: string, currentPage: number) {
@@ -73,14 +18,18 @@ export async function fetchFilteredCalls(query: string, currentPage: number) {
         calls.id,
         calls.date,
         calls.status,
+        calls.notes,
         contacts.name,
-        contacts.email
+        contacts.company,
+        contacts.phone
       FROM calls
       JOIN contacts ON calls.contact_id = contacts.id
       WHERE
         contacts.name ILIKE ${`%${query}%`} OR
-        contacts.email ILIKE ${`%${query}%`} OR
+        contacts.company ILIKE ${`%${query}%`} OR
+        contacts.phone ILIKE ${`%${query}%`} OR
         calls.date::text ILIKE ${`%${query}%`} OR
+        calls.notes::text ILIKE ${`%${query}%`} OR
         calls.status ILIKE ${`%${query}%`}
       ORDER BY calls.date DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
@@ -100,7 +49,8 @@ export async function fetchCallsPages(query: string) {
     JOIN contacts ON calls.contact_id = contacts.id
     WHERE
       contacts.name ILIKE ${`%${query}%`} OR
-      contacts.email ILIKE ${`%${query}%`} OR
+      contacts.company ILIKE ${`%${query}%`} OR
+      contacts.phone ILIKE ${`%${query}%`} OR
       calls.date::text ILIKE ${`%${query}%`} OR
       calls.status ILIKE ${`%${query}%`}
   `;
@@ -115,7 +65,7 @@ export async function fetchCallsPages(query: string) {
 
 export async function fetchCallById(id: string) {
   try {
-    const data = await sql<CallForm[]>`
+    const calls = await sql<CallForm[]>`
       SELECT
         calls.id,
         calls.contact_id,
@@ -124,11 +74,7 @@ export async function fetchCallById(id: string) {
       WHERE calls.id = ${id};
     `;
 
-    const call = data.map((call) => ({
-      ...call,
-    }));
-
-    return call[0];
+    return calls[0];
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch call.");
@@ -140,7 +86,9 @@ export async function fetchContacts() {
     const contacts = await sql<ContactField[]>`
       SELECT
         id,
-        name
+        name,
+        company,
+        phone
       FROM contacts
       ORDER BY name ASC
     `;
@@ -158,7 +106,8 @@ export async function fetchContactsPages(query: string) {
     FROM contacts
     WHERE
       contacts.name ILIKE ${`%${query}%`} OR
-      contacts.email ILIKE ${`%${query}%`}
+      contacts.company ILIKE ${`%${query}%`} OR
+      contacts.phone ILIKE ${`%${query}%`}
   `;
 
     const totalPages = Math.ceil(Number(data[0].count) / ITEMS_PER_PAGE);
@@ -180,29 +129,18 @@ export async function fetchFilteredContacts(
 		SELECT
 		  contacts.id,
 		  contacts.name,
-		  contacts.email,
-		  COUNT(calls.id) AS total_calls,
-		  COUNT(CASE WHEN calls.status = 'pending' THEN 1 END) AS total_pending,
-      COUNT(CASE WHEN calls.status = 'return' THEN 1 END) AS total_return,
-      COUNT(CASE WHEN calls.status = 'lw' THEN 1 END) AS total_lw
+      contacts.company,
+		  contacts.phone
 		FROM contacts
-		LEFT JOIN calls ON contacts.id = calls.contact_id
 		WHERE
 		  contacts.name ILIKE ${`%${query}%`} OR
-        contacts.email ILIKE ${`%${query}%`}
-		GROUP BY contacts.id, contacts.name, contacts.email
+      contacts.company ILIKE ${`%${query}%`} OR
+      contacts.phone ILIKE ${`%${query}%`}
 		ORDER BY contacts.name ASC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
 	  `;
 
-    const contacts = data.map((contact) => ({
-      ...contact,
-      total_pending: Number(contact.total_pending ?? 0),
-      total_return: Number(contact.total_return ?? 0),
-      total_lw: Number(contact.total_lw ?? 0),
-    }));
-
-    return contacts;
+    return data;
   } catch (err) {
     console.error("Database Error:", err);
     throw new Error("Failed to fetch contact table.");

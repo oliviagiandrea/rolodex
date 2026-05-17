@@ -8,27 +8,26 @@ export type User = {
 export type Contact = {
   id: string;
   name: string;
-  email: string;
+  company: string;
+  phone: string;
+  notes: string;
 };
 
 export type Call = {
   id: string;
   contact_id: string;
+  notes: string;
   date: string;
   status: "pending" | "return" | "lw";
-};
-
-export type LatestCall = {
-  id: string;
-  name: string;
-  email: string;
 };
 
 export type CallsTable = {
   id: string;
   contact_id: string;
   name: string;
-  email: string;
+  company: string;
+  phone: string;
+  notes: string;
   date: string;
   status: "pending" | "return" | "lw";
 };
@@ -36,30 +35,33 @@ export type CallsTable = {
 export type ContactsTableType = {
   id: string;
   name: string;
-  email: string;
-  total_calls: number;
-  total_pending: number;
-  total_return: number;
-  total_lw: number;
+  company: string;
+  phone: string;
+  notes: string;
 };
 
 export type FormattedContactsTable = {
   id: string;
   name: string;
-  email: string;
-  total_calls: number;
-  total_pending: string;
-  total_return: string;
-  total_lw: string;
+  company: string;
+  phone: string;
+  notes: string;
 };
 
 export type ContactField = {
   id: string;
   name: string;
+  company: string;
+  phone: string;
+  notes: string;
 };
 
 export type CallForm = {
   id: string;
   contact_id: string;
+  name: string;
+  company: string;
+  phone: string;
   status: "pending" | "return" | "lw";
+  notes: string;
 };

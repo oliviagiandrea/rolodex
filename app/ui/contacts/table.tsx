@@ -25,25 +25,9 @@ export default async function ContactsTable({
                       <div className="mb-2 flex items-center">
                         <p>{contact.name}</p>
                       </div>
-                      <p className="text-sm text-gray-500">{contact.email}</p>
+                      <p className="text-sm text-gray-500">{contact.company}</p>
+                      <p className="text-sm text-gray-500">{contact.phone}</p>
                     </div>
-                  </div>
-                  <div className="flex w-full items-center justify-between border-b py-5">
-                    <div className="flex w-1/2 flex-col">
-                      <p className="text-xs">Pending</p>
-                      <p className="font-medium">{contact.total_pending}</p>
-                    </div>
-                    <div className="flex w-1/2 flex-col">
-                      <p className="text-xs">Return</p>
-                      <p className="font-medium">{contact.total_return}</p>
-                    </div>
-                    <div className="flex w-1/2 flex-col">
-                      <p className="text-xs">LW</p>
-                      <p className="font-medium">{contact.total_lw}</p>
-                    </div>
-                  </div>
-                  <div className="pt-4 text-sm">
-                    <p>{contact.total_calls} calls</p>
                   </div>
                 </div>
               ))}
@@ -55,19 +39,10 @@ export default async function ContactsTable({
                     Name
                   </th>
                   <th scope="col" className="px-3 py-5 font-medium">
-                    Email
+                    Company
                   </th>
                   <th scope="col" className="px-3 py-5 font-medium">
-                    Total Calls
-                  </th>
-                  <th scope="col" className="px-3 py-5 font-medium">
-                    Total Pending
-                  </th>
-                  <th scope="col" className="px-4 py-5 font-medium">
-                    Total Return
-                  </th>
-                  <th scope="col" className="px-4 py-5 font-medium">
-                    Total LW
+                    Phone Number
                   </th>
                 </tr>
               </thead>
@@ -81,19 +56,10 @@ export default async function ContactsTable({
                       </div>
                     </td>
                     <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                      {contact.email}
+                      {contact.company}
                     </td>
                     <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                      {contact.total_calls}
-                    </td>
-                    <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                      {contact.total_pending}
-                    </td>
-                    <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
-                      {contact.total_return}
-                    </td>
-                    <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
-                      {contact.total_lw}
+                      {contact.phone}
                     </td>
                   </tr>
                 ))}
