@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState, type ChangeEvent } from "react";
+import { useActionState, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import {
   CheckIcon,
@@ -21,14 +21,11 @@ export default function EditCallForm({
   const initialState: State = { message: null, errors: {} };
   const updateCallWithId = updateCall.bind(null, call.id);
   const [state, formAction] = useActionState(updateCallWithId, initialState);
-  const [company, setCompany] = useState("");
-  const [phone, setPhone] = useState("");
-
-  useEffect(() => {
-    const contact = contacts.find((item) => item.id === call.contact_id);
-    setCompany(contact?.company ?? call.company ?? "");
-    setPhone(contact?.phone ?? call.phone ?? "");
-  }, [call.contact_id, call.company, call.phone, contacts]);
+  const defaultContact = contacts.find((item) => item.id === call.contact_id);
+  const [company, setCompany] = useState(
+    defaultContact?.company ?? call.company ?? "",
+  );
+  const [phone, setPhone] = useState(defaultContact?.phone ?? call.phone ?? "");
 
   const handleContactChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const contact = contacts.find((item) => item.id === event.target.value);
