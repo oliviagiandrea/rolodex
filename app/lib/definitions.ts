@@ -15,7 +15,6 @@ export type Contact = {
 export type Call = {
   id: string;
   contact_id: string;
-  amount: number;
   date: string;
   status: "pending" | "return" | "lw";
 };
@@ -30,12 +29,6 @@ export type LatestCall = {
   name: string;
   image_url: string;
   email: string;
-  amount: string;
-};
-
-// The database returns a number for amount, but we later format it to a string with the formatCurrency function
-export type LatestCallRaw = Omit<LatestCall, "amount"> & {
-  amount: number;
 };
 
 export type CallsTable = {
@@ -45,7 +38,6 @@ export type CallsTable = {
   email: string;
   image_url: string;
   date: string;
-  amount: number;
   status: "pending" | "return" | "lw";
 };
 
@@ -79,6 +71,5 @@ export type ContactField = {
 export type CallForm = {
   id: string;
   contact_id: string;
-  amount: number;
   status: "pending" | "return" | "lw";
 };

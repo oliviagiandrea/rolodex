@@ -12,7 +12,6 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 export type State = {
   errors?: {
     contactId?: string[];
-    amount?: string[];
     status?: string[];
   };
   message?: string | null;
@@ -23,9 +22,6 @@ const FormSchema = z.object({
   contactId: z.string({
     invalid_type_error: "Please select a contact.",
   }),
-  amount: z.coerce
-    .number()
-    .gt(0, { message: "Please enter an amount greater than $0." }),
   status: z.enum(["return", "pending", "lw"], {
     invalid_type_error: "Please select an call status.",
   }),
@@ -39,7 +35,6 @@ export async function createCall(prevState: State, formData: FormData) {
   // Validate form using Zod
   const validatedFields = CreateCall.safeParse({
     contactId: formData.get("contactId"),
-    amount: formData.get("amount"),
     status: formData.get("status"),
   });
 
@@ -52,15 +47,14 @@ export async function createCall(prevState: State, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { contactId, amount, status } = validatedFields.data;
-  const amountInCents = amount * 100;
+  const { contactId, status } = validatedFields.data;
   const date = new Date().toISOString().split("T")[0];
 
   // Insert data into the database
   try {
     await sql`
-      INSERT INTO calls (contact_id, amount, status, date)
-      VALUES (${contactId}, ${amountInCents}, ${status}, ${date})
+      INSERT INTO calls (contact_id, status, date)
+      VALUES (${contactId}, ${status}, ${date})
     `;
   } catch (error) {
     // If a database error occurs, return a more specific error.
@@ -81,7 +75,6 @@ export async function updateCall(
 ) {
   const validatedFields = UpdateCall.safeParse({
     contactId: formData.get("contactId"),
-    amount: formData.get("amount"),
     status: formData.get("status"),
   });
 
@@ -92,13 +85,12 @@ export async function updateCall(
     };
   }
 
-  const { contactId, amount, status } = validatedFields.data;
-  const amountInCents = amount * 100;
+  const { contactId, status } = validatedFields.data;
 
   try {
     await sql`
       UPDATE calls
-      SET contact_id = ${contactId}, amount = ${amountInCents}, status = ${status}
+      SET contact_id = ${contactId}, status = ${status}
       WHERE id = ${id}
     `;
   } catch (error) {

@@ -36,7 +36,6 @@ async function seedCalls() {
     CREATE TABLE IF NOT EXISTS calls (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       contact_id UUID NOT NULL,
-      amount INT NOT NULL,
       status VARCHAR(255) NOT NULL,
       date DATE NOT NULL
     );
@@ -45,8 +44,8 @@ async function seedCalls() {
   const insertedCalls = await Promise.all(
     calls.map(
       (call) => sql`
-        INSERT INTO calls (contact_id, amount, status, date)
-        VALUES (${call.contact_id}, ${call.amount}, ${call.status}, ${call.date})
+        INSERT INTO calls (contact_id, status, date)
+        VALUES (${call.contact_id}, ${call.status}, ${call.date})
         ON CONFLICT (id) DO NOTHING;
       `,
     ),

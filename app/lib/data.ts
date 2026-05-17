@@ -4,10 +4,9 @@ import {
   ContactsTableType,
   CallForm,
   CallsTable,
-  LatestCallRaw,
+  LatestCall,
   Revenue,
 } from "./definitions";
-import { formatCurrency } from "./utils";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -24,8 +23,8 @@ export async function fetchRevenue() {
 
 export async function fetchLatestCalls() {
   try {
-    const data = await sql<LatestCallRaw[]>`
-      SELECT calls.amount, contacts.name, contacts.image_url, contacts.email, calls.id
+    const data = await sql<LatestCall[]>`
+      SELECT contacts.name, contacts.image_url, contacts.email, calls.id
       FROM calls
       JOIN contacts ON calls.contact_id = contacts.id
       ORDER BY calls.date DESC
@@ -33,7 +32,6 @@ export async function fetchLatestCalls() {
 
     const latestCalls = data.map((call) => ({
       ...call,
-      amount: formatCurrency(call.amount),
     }));
     return latestCalls;
   } catch (error) {
@@ -47,9 +45,9 @@ export async function fetchCardData() {
     const callCountPromise = sql`SELECT COUNT(*) FROM calls`;
     const contactCountPromise = sql`SELECT COUNT(*) FROM contacts`;
     const callStatusPromise = sql`SELECT
-      SUM(CASE WHEN status = 'return' THEN amount ELSE 0 END) AS "return",
-      SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending",
-      SUM(CASE WHEN status = 'lw' THEN amount ELSE 0 END) AS "lw"
+      COUNT(CASE WHEN status = 'return' THEN 1 END) AS "return",
+      COUNT(CASE WHEN status = 'pending' THEN 1 END) AS "pending",
+      COUNT(CASE WHEN status = 'lw' THEN 1 END) AS "lw"
       FROM calls`;
 
     const data = await Promise.all([
@@ -60,9 +58,9 @@ export async function fetchCardData() {
 
     const numberOfCalls = Number(data[0][0].count ?? "0");
     const numberOfContacts = Number(data[1][0].count ?? "0");
-    const totalReturnCalls = formatCurrency(data[2][0].return ?? "0");
-    const totalPendingCalls = formatCurrency(data[2][0].pending ?? "0");
-    const totalLWCalls = formatCurrency(data[2][0].lw ?? "0");
+    const totalReturnCalls = Number(data[2][0].return ?? 0);
+    const totalPendingCalls = Number(data[2][0].pending ?? 0);
+    const totalLWCalls = Number(data[2][0].lw ?? 0);
 
     return {
       numberOfContacts,
@@ -85,7 +83,6 @@ export async function fetchFilteredCalls(query: string, currentPage: number) {
     const calls = await sql<CallsTable[]>`
       SELECT
         calls.id,
-        calls.amount,
         calls.date,
         calls.status,
         contacts.name,
@@ -96,7 +93,6 @@ export async function fetchFilteredCalls(query: string, currentPage: number) {
       WHERE
         contacts.name ILIKE ${`%${query}%`} OR
         contacts.email ILIKE ${`%${query}%`} OR
-        calls.amount::text ILIKE ${`%${query}%`} OR
         calls.date::text ILIKE ${`%${query}%`} OR
         calls.status ILIKE ${`%${query}%`}
       ORDER BY calls.date DESC
@@ -118,7 +114,6 @@ export async function fetchCallsPages(query: string) {
     WHERE
       contacts.name ILIKE ${`%${query}%`} OR
       contacts.email ILIKE ${`%${query}%`} OR
-      calls.amount::text ILIKE ${`%${query}%`} OR
       calls.date::text ILIKE ${`%${query}%`} OR
       calls.status ILIKE ${`%${query}%`}
   `;
@@ -137,7 +132,6 @@ export async function fetchCallById(id: string) {
       SELECT
         calls.id,
         calls.contact_id,
-        calls.amount,
         calls.status
       FROM calls
       WHERE calls.id = ${id};
@@ -145,8 +139,6 @@ export async function fetchCallById(id: string) {
 
     const call = data.map((call) => ({
       ...call,
-      // Convert amount from cents to dollars
-      amount: call.amount / 100,
     }));
 
     return call[0];
@@ -204,9 +196,9 @@ export async function fetchFilteredContacts(
 		  contacts.email,
 		  contacts.image_url,
 		  COUNT(calls.id) AS total_calls,
-		  SUM(CASE WHEN calls.status = 'pending' THEN calls.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN calls.status = 'return' THEN calls.amount ELSE 0 END) AS total_return,
-      SUM(CASE WHEN calls.status = 'lw' THEN calls.amount ELSE 0 END) AS total_lw
+		  COUNT(CASE WHEN calls.status = 'pending' THEN 1 END) AS total_pending,
+      COUNT(CASE WHEN calls.status = 'return' THEN 1 END) AS total_return,
+      COUNT(CASE WHEN calls.status = 'lw' THEN 1 END) AS total_lw
 		FROM contacts
 		LEFT JOIN calls ON contacts.id = calls.contact_id
 		WHERE
@@ -219,9 +211,9 @@ export async function fetchFilteredContacts(
 
     const contacts = data.map((contact) => ({
       ...contact,
-      total_pending: formatCurrency(contact.total_pending),
-      total_return: formatCurrency(contact.total_return),
-      total_lw: formatCurrency(contact.total_lw),
+      total_pending: Number(contact.total_pending ?? 0),
+      total_return: Number(contact.total_return ?? 0),
+      total_lw: Number(contact.total_lw ?? 0),
     }));
 
     return contacts;

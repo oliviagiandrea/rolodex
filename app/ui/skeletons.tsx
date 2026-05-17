@@ -116,10 +116,6 @@ export function TableRowSkeleton() {
       <td className="whitespace-nowrap px-3 py-3">
         <div className="h-6 w-32 rounded bg-gray-100"></div>
       </td>
-      {/* Amount */}
-      <td className="whitespace-nowrap px-3 py-3">
-        <div className="h-6 w-16 rounded bg-gray-100"></div>
-      </td>
       {/* Date */}
       <td className="whitespace-nowrap px-3 py-3">
         <div className="h-6 w-16 rounded bg-gray-100"></div>
@@ -184,9 +180,6 @@ export function CallsTableSkeleton() {
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Email
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Amount
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Date

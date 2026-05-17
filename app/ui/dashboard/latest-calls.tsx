@@ -42,11 +42,6 @@ export default async function LatestCalls() {
                     </p>
                   </div>
                 </div>
-                <p
-                  className={`${lusitana.className} truncate text-sm font-medium md:text-base`}
-                >
-                  {call.amount}
-                </p>
               </div>
             );
           })}

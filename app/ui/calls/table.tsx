@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { fetchFilteredCalls } from "@/app/lib/data";
-import { formatDateToLocal, formatCurrency } from "@/app/lib/utils";
+import { formatDateToLocal } from "@/app/lib/utils";
 import { UpdateCall, DeleteCall } from "@/app/ui/calls/buttons";
 import CallStatus from "@/app/ui/calls/status";
 
@@ -41,9 +41,6 @@ export default async function CallsTable({
                 </div>
                 <div className="flex w-full items-center justify-between pt-4">
                   <div>
-                    <p className="text-xl font-medium">
-                      {formatCurrency(call.amount)}
-                    </p>
                     <p>{formatDateToLocal(call.date)}</p>
                   </div>
                   <div className="flex justify-end gap-2">
@@ -62,9 +59,6 @@ export default async function CallsTable({
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Email
-                </th>
-                <th scope="col" className="px-3 py-5 font-medium">
-                  Amount
                 </th>
                 <th scope="col" className="px-3 py-5 font-medium">
                   Date
@@ -96,9 +90,6 @@ export default async function CallsTable({
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-3 py-3">{call.email}</td>
-                  <td className="whitespace-nowrap px-3 py-3">
-                    {formatCurrency(call.amount)}
-                  </td>
                   <td className="whitespace-nowrap px-3 py-3">
                     {formatDateToLocal(call.date)}
                   </td>
