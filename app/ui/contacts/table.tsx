@@ -1,17 +1,14 @@
 import Image from "next/image";
-import { fetchCustomersPages, fetchFilteredCustomers } from "@/app/lib/data";
-import { FormattedCustomersTable } from "@/app/lib/definitions";
-import { lusitana } from "@/app/ui/fonts";
-import Search from "@/app/ui/search";
+import { fetchFilteredContacts } from "@/app/lib/data";
 
-export default async function CustomersTable({
+export default async function ContactsTable({
   query,
   currentPage,
 }: {
   query: string;
   currentPage: number;
 }) {
-  const customers = await fetchFilteredCustomers(query, currentPage);
+  const contacts = await fetchFilteredContacts(query, currentPage);
 
   return (
     <div className="mt-6 flow-root">
@@ -19,9 +16,9 @@ export default async function CustomersTable({
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden rounded-md bg-gray-50 p-2 md:pt-0">
             <div className="md:hidden">
-              {customers?.map((customer) => (
+              {contacts?.map((contact) => (
                 <div
-                  key={customer.id}
+                  key={contact.id}
                   className="mb-2 w-full rounded-md bg-white p-4"
                 >
                   <div className="flex items-center justify-between border-b pb-4">
@@ -29,30 +26,34 @@ export default async function CustomersTable({
                       <div className="mb-2 flex items-center">
                         <div className="flex items-center gap-3">
                           <Image
-                            src={customer.image_url}
+                            src={contact.image_url}
                             className="rounded-full"
-                            alt={`${customer.name}'s profile picture`}
+                            alt={`${contact.name}'s profile picture`}
                             width={28}
                             height={28}
                           />
-                          <p>{customer.name}</p>
+                          <p>{contact.name}</p>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-500">{customer.email}</p>
+                      <p className="text-sm text-gray-500">{contact.email}</p>
                     </div>
                   </div>
                   <div className="flex w-full items-center justify-between border-b py-5">
                     <div className="flex w-1/2 flex-col">
                       <p className="text-xs">Pending</p>
-                      <p className="font-medium">{customer.total_pending}</p>
+                      <p className="font-medium">{contact.total_pending}</p>
                     </div>
                     <div className="flex w-1/2 flex-col">
-                      <p className="text-xs">Paid</p>
-                      <p className="font-medium">{customer.total_paid}</p>
+                      <p className="text-xs">Return</p>
+                      <p className="font-medium">{contact.total_return}</p>
+                    </div>
+                    <div className="flex w-1/2 flex-col">
+                      <p className="text-xs">LW</p>
+                      <p className="font-medium">{contact.total_lw}</p>
                     </div>
                   </div>
                   <div className="pt-4 text-sm">
-                    <p>{customer.total_invoices} invoices</p>
+                    <p>{contact.total_calls} calls</p>
                   </div>
                 </div>
               ))}
@@ -67,43 +68,49 @@ export default async function CustomersTable({
                     Email
                   </th>
                   <th scope="col" className="px-3 py-5 font-medium">
-                    Total Invoices
+                    Total Calls
                   </th>
                   <th scope="col" className="px-3 py-5 font-medium">
                     Total Pending
                   </th>
                   <th scope="col" className="px-4 py-5 font-medium">
-                    Total Paid
+                    Total Return
+                  </th>
+                  <th scope="col" className="px-4 py-5 font-medium">
+                    Total LW
                   </th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-gray-200 text-gray-900">
-                {customers.map((customer) => (
-                  <tr key={customer.id} className="group">
+                {contacts.map((contact) => (
+                  <tr key={contact.id} className="group">
                     <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm text-black group-first-of-type:rounded-md group-last-of-type:rounded-md sm:pl-6">
                       <div className="flex items-center gap-3">
                         <Image
-                          src={customer.image_url}
+                          src={contact.image_url}
                           className="rounded-full"
-                          alt={`${customer.name}'s profile picture`}
+                          alt={`${contact.name}'s profile picture`}
                           width={28}
                           height={28}
                         />
-                        <p>{customer.name}</p>
+                        <p>{contact.name}</p>
                       </div>
                     </td>
                     <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                      {customer.email}
+                      {contact.email}
                     </td>
                     <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                      {customer.total_invoices}
+                      {contact.total_calls}
                     </td>
                     <td className="whitespace-nowrap bg-white px-4 py-5 text-sm">
-                      {customer.total_pending}
+                      {contact.total_pending}
                     </td>
                     <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
-                      {customer.total_paid}
+                      {contact.total_return}
+                    </td>
+                    <td className="whitespace-nowrap bg-white px-4 py-5 text-sm group-first-of-type:rounded-md group-last-of-type:rounded-md">
+                      {contact.total_lw}
                     </td>
                   </tr>
                 ))}

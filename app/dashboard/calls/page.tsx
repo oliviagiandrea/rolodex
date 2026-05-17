@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import { fetchInvoicesPages } from "@/app/lib/data";
+import { fetchCallsPages } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
-import { CreateInvoice } from "@/app/ui/invoices/buttons";
-import Pagination from "@/app/ui/invoices/pagination";
-import Table from "@/app/ui/invoices/table";
+import { CreateCall } from "@/app/ui/calls/buttons";
+import Pagination from "@/app/ui/calls/pagination";
+import Table from "@/app/ui/calls/table";
 import Search from "@/app/ui/search";
-import { InvoicesTableSkeleton } from "@/app/ui/skeletons";
+import { CallsTableSkeleton } from "@/app/ui/skeletons";
 
 export const metadata: Metadata = {
-  title: "Invoices",
+  title: "Calls",
 };
 
 export default async function Page(props: {
@@ -21,18 +21,18 @@ export default async function Page(props: {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
-  const totalPages = await fetchInvoicesPages(query);
+  const totalPages = await fetchCallsPages(query);
 
   return (
     <div className="w-full">
       <div className="flex w-full items-center justify-between">
-        <h1 className={`${lusitana.className} text-2xl`}>Invoices</h1>
+        <h1 className={`${lusitana.className} text-2xl`}>Calls</h1>
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
-        <Search placeholder="Search invoices..." />
-        <CreateInvoice />
+        <Search placeholder="Search calls..." />
+        <CreateCall />
       </div>
-      <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+      <Suspense key={query + currentPage} fallback={<CallsTableSkeleton />}>
         <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">

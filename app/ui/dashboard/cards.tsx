@@ -8,30 +8,27 @@ import {
 } from "@heroicons/react/24/outline";
 
 const iconMap = {
-  collected: BanknotesIcon,
-  customers: UserGroupIcon,
+  return: BanknotesIcon,
+  contacts: UserGroupIcon,
   pending: ClockIcon,
-  invoices: InboxIcon,
+  calls: InboxIcon,
 };
 
 export default async function CardWrapper() {
   const {
-    numberOfInvoices,
-    numberOfCustomers,
-    totalPaidInvoices,
-    totalPendingInvoices,
+    numberOfCalls,
+    numberOfContacts,
+    totalReturnCalls,
+    totalPendingCalls,
+    totalLWCalls,
   } = await fetchCardData();
 
   return (
     <>
-      <Card title="Collected" value={totalPaidInvoices} type="collected" />
-      <Card title="Pending" value={totalPendingInvoices} type="pending" />
-      <Card title="Total Invoices" value={numberOfInvoices} type="invoices" />
-      <Card
-        title="Total Customers"
-        value={numberOfCustomers}
-        type="customers"
-      />
+      <Card title="Return" value={totalReturnCalls} type="return" />
+      <Card title="Pending" value={totalPendingCalls} type="pending" />
+      <Card title="Total Calls" value={numberOfCalls} type="calls" />
+      <Card title="Total Contacts" value={numberOfContacts} type="contacts" />
     </>
   );
 }
@@ -43,7 +40,7 @@ export function Card({
 }: {
   title: string;
   value: number | string;
-  type: "invoices" | "customers" | "pending" | "collected";
+  type: "calls" | "contacts" | "pending" | "return";
 }) {
   const Icon = iconMap[type];
 

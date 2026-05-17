@@ -1,8 +1,8 @@
-import bcrypt from 'bcrypt';
-import postgres from 'postgres';
-import { invoices, customers, revenue, users } from '../lib/placeholder-data';
+import bcrypt from "bcrypt";
+import postgres from "postgres";
+import { calls, contacts, revenue, users } from "../lib/placeholder-data";
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
 async function seedUsers() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -29,37 +29,37 @@ async function seedUsers() {
   return insertedUsers;
 }
 
-async function seedInvoices() {
+async function seedCalls() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
   await sql`
-    CREATE TABLE IF NOT EXISTS invoices (
+    CREATE TABLE IF NOT EXISTS calls (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-      customer_id UUID NOT NULL,
+      contact_id UUID NOT NULL,
       amount INT NOT NULL,
       status VARCHAR(255) NOT NULL,
       date DATE NOT NULL
     );
   `;
 
-  const insertedInvoices = await Promise.all(
-    invoices.map(
-      (invoice) => sql`
-        INSERT INTO invoices (customer_id, amount, status, date)
-        VALUES (${invoice.customer_id}, ${invoice.amount}, ${invoice.status}, ${invoice.date})
+  const insertedCalls = await Promise.all(
+    calls.map(
+      (call) => sql`
+        INSERT INTO calls (contact_id, amount, status, date)
+        VALUES (${call.contact_id}, ${call.amount}, ${call.status}, ${call.date})
         ON CONFLICT (id) DO NOTHING;
       `,
     ),
   );
 
-  return insertedInvoices;
+  return insertedCalls;
 }
 
-async function seedCustomers() {
+async function seedContacts() {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
   await sql`
-    CREATE TABLE IF NOT EXISTS customers (
+    CREATE TABLE IF NOT EXISTS contacts (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       email VARCHAR(255) NOT NULL,
@@ -67,17 +67,17 @@ async function seedCustomers() {
     );
   `;
 
-  const insertedCustomers = await Promise.all(
-    customers.map(
-      (customer) => sql`
-        INSERT INTO customers (id, name, email, image_url)
-        VALUES (${customer.id}, ${customer.name}, ${customer.email}, ${customer.image_url})
+  const insertedContacts = await Promise.all(
+    contacts.map(
+      (contact) => sql`
+        INSERT INTO contacts (id, name, email, image_url)
+        VALUES (${contact.id}, ${contact.name}, ${contact.email}, ${contact.image_url})
         ON CONFLICT (id) DO NOTHING;
       `,
     ),
   );
 
-  return insertedCustomers;
+  return insertedContacts;
 }
 
 async function seedRevenue() {
@@ -105,12 +105,12 @@ export async function GET() {
   try {
     const result = await sql.begin((sql) => [
       seedUsers(),
-      seedCustomers(),
-      seedInvoices(),
+      seedContacts(),
+      seedCalls(),
       seedRevenue(),
     ]);
 
-    return Response.json({ message: 'Database seeded successfully' });
+    return Response.json({ message: "Database seeded successfully" });
   } catch (error) {
     return Response.json({ error }, { status: 500 });
   }
