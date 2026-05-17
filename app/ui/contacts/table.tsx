@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { fetchFilteredContacts } from "@/app/lib/data";
 
 export default async function ContactsTable({
@@ -24,16 +23,7 @@ export default async function ContactsTable({
                   <div className="flex items-center justify-between border-b pb-4">
                     <div>
                       <div className="mb-2 flex items-center">
-                        <div className="flex items-center gap-3">
-                          <Image
-                            src={contact.image_url}
-                            className="rounded-full"
-                            alt={`${contact.name}'s profile picture`}
-                            width={28}
-                            height={28}
-                          />
-                          <p>{contact.name}</p>
-                        </div>
+                        <p>{contact.name}</p>
                       </div>
                       <p className="text-sm text-gray-500">{contact.email}</p>
                     </div>
@@ -86,14 +76,7 @@ export default async function ContactsTable({
                 {contacts.map((contact) => (
                   <tr key={contact.id} className="group">
                     <td className="whitespace-nowrap bg-white py-5 pl-4 pr-3 text-sm text-black group-first-of-type:rounded-md group-last-of-type:rounded-md sm:pl-6">
-                      <div className="flex items-center gap-3">
-                        <Image
-                          src={contact.image_url}
-                          className="rounded-full"
-                          alt={`${contact.name}'s profile picture`}
-                          width={28}
-                          height={28}
-                        />
+                      <div className="flex items-center">
                         <p>{contact.name}</p>
                       </div>
                     </td>

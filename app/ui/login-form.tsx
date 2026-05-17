@@ -14,7 +14,7 @@ import { Button } from "./button";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") || "/calls";
   const [errorMessage, formAction, isPending] = useActionState(
     authenticate,
     undefined,

@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import postgres from "postgres";
-import { calls, contacts, revenue, users } from "../lib/placeholder-data";
+import { calls, contacts, users } from "../lib/placeholder-data";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
@@ -61,16 +61,15 @@ async function seedContacts() {
     CREATE TABLE IF NOT EXISTS contacts (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
-      email VARCHAR(255) NOT NULL,
-      image_url VARCHAR(255) NOT NULL
+      email VARCHAR(255) NOT NULL
     );
   `;
 
   const insertedContacts = await Promise.all(
     contacts.map(
       (contact) => sql`
-        INSERT INTO contacts (id, name, email, image_url)
-        VALUES (${contact.id}, ${contact.name}, ${contact.email}, ${contact.image_url})
+        INSERT INTO contacts (id, name, email)
+        VALUES (${contact.id}, ${contact.name}, ${contact.email})
         ON CONFLICT (id) DO NOTHING;
       `,
     ),
@@ -79,34 +78,12 @@ async function seedContacts() {
   return insertedContacts;
 }
 
-async function seedRevenue() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS revenue (
-      month VARCHAR(4) NOT NULL UNIQUE,
-      revenue INT NOT NULL
-    );
-  `;
-
-  const insertedRevenue = await Promise.all(
-    revenue.map(
-      (rev) => sql`
-        INSERT INTO revenue (month, revenue)
-        VALUES (${rev.month}, ${rev.revenue})
-        ON CONFLICT (month) DO NOTHING;
-      `,
-    ),
-  );
-
-  return insertedRevenue;
-}
-
 export async function GET() {
   try {
     const result = await sql.begin((sql) => [
       seedUsers(),
       seedContacts(),
       seedCalls(),
-      seedRevenue(),
     ]);
 
     return Response.json({ message: "Database seeded successfully" });

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PowerIcon } from "@heroicons/react/24/outline";
-import AcmeLogo from "@/app/ui/acme-logo";
-import NavLinks from "@/app/ui/dashboard/nav-links";
+import RolodexLogo from "@/app/ui/rolodex-logo";
+import NavLinks from "@/app/ui/nav-links";
 import { signOut } from "@/auth";
 
 export default function SideNav() {
@@ -12,7 +12,7 @@ export default function SideNav() {
         href="/"
       >
         <div className="w-32 text-white md:w-40">
-          <AcmeLogo />
+          <RolodexLogo />
         </div>
       </Link>
       <div className="flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2">

@@ -9,7 +9,6 @@ export type Contact = {
   id: string;
   name: string;
   email: string;
-  image_url: string;
 };
 
 export type Call = {
@@ -19,15 +18,9 @@ export type Call = {
   status: "pending" | "return" | "lw";
 };
 
-export type Revenue = {
-  month: string;
-  revenue: number;
-};
-
 export type LatestCall = {
   id: string;
   name: string;
-  image_url: string;
   email: string;
 };
 
@@ -36,7 +29,6 @@ export type CallsTable = {
   contact_id: string;
   name: string;
   email: string;
-  image_url: string;
   date: string;
   status: "pending" | "return" | "lw";
 };
@@ -45,7 +37,6 @@ export type ContactsTableType = {
   id: string;
   name: string;
   email: string;
-  image_url: string;
   total_calls: number;
   total_pending: number;
   total_return: number;
@@ -56,7 +47,6 @@ export type FormattedContactsTable = {
   id: string;
   name: string;
   email: string;
-  image_url: string;
   total_calls: number;
   total_pending: string;
   total_return: string;

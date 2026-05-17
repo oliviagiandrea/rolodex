@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { fetchFilteredCalls } from "@/app/lib/data";
 import { formatDateToLocal } from "@/app/lib/utils";
 import { UpdateCall, DeleteCall } from "@/app/ui/calls/buttons";
@@ -26,13 +25,6 @@ export default async function CallsTable({
                 <div className="flex items-center justify-between border-b pb-4">
                   <div>
                     <div className="mb-2 flex items-center">
-                      <Image
-                        src={call.image_url}
-                        className="mr-2 rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${call.name}'s profile picture`}
-                      />
                       <p>{call.name}</p>
                     </div>
                     <p className="text-sm text-gray-500">{call.email}</p>
@@ -78,14 +70,7 @@ export default async function CallsTable({
                   className="w-full border-b py-3 text-sm last-of-type:border-none [&:first-child>td:first-child]:rounded-tl-lg [&:first-child>td:last-child]:rounded-tr-lg [&:last-child>td:first-child]:rounded-bl-lg [&:last-child>td:last-child]:rounded-br-lg"
                 >
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
-                    <div className="flex items-center gap-3">
-                      <Image
-                        src={call.image_url}
-                        className="rounded-full"
-                        width={28}
-                        height={28}
-                        alt={`${call.name}'s profile picture`}
-                      />
+                    <div className="flex items-center">
                       <p>{call.name}</p>
                     </div>
                   </td>

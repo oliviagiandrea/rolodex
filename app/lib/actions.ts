@@ -64,8 +64,8 @@ export async function createCall(prevState: State, formData: FormData) {
   }
 
   // Revalidate the cache for the calls page and redirect the user.
-  revalidatePath("/dashboard/calls");
-  redirect("/dashboard/calls");
+  revalidatePath("/calls");
+  redirect("/calls");
 }
 
 export async function updateCall(
@@ -97,13 +97,13 @@ export async function updateCall(
     return { message: "Database Error: Failed to Update Call." };
   }
 
-  revalidatePath("/dashboard/calls");
-  redirect("/dashboard/calls");
+  revalidatePath("/calls");
+  redirect("/calls");
 }
 
 export async function deleteCall(id: string) {
   await sql`DELETE FROM calls WHERE id = ${id}`;
-  revalidatePath("/dashboard/calls");
+  revalidatePath("/calls");
 }
 
 export async function authenticate(

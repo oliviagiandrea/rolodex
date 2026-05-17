@@ -4,8 +4,8 @@ import "@/app/ui/global.css";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Acme Dashboard",
-    default: "Acme Dashboard",
+    template: "%s | Rolodex",
+    default: "Rolodex",
   },
   description: "Rolodex",
 };

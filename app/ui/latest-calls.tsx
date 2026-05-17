@@ -1,5 +1,4 @@
 import clsx from "clsx";
-import Image from "next/image";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { fetchLatestCalls } from "@/app/lib/data";
 import { lusitana } from "@/app/ui/fonts";
@@ -26,13 +25,6 @@ export default async function LatestCalls() {
                 )}
               >
                 <div className="flex items-center">
-                  <Image
-                    src={call.image_url}
-                    alt={`${call.name}'s profile picture`}
-                    className="mr-4 rounded-full"
-                    width={32}
-                    height={32}
-                  />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold md:text-base">
                       {call.name}

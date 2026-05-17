@@ -5,26 +5,14 @@ import {
   CallForm,
   CallsTable,
   LatestCall,
-  Revenue,
 } from "./definitions";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
-export async function fetchRevenue() {
-  try {
-    const data = await sql<Revenue[]>`SELECT * FROM revenue`;
-
-    return data;
-  } catch (error) {
-    console.error("Database Error:", error);
-    throw new Error("Failed to fetch revenue data.");
-  }
-}
-
 export async function fetchLatestCalls() {
   try {
     const data = await sql<LatestCall[]>`
-      SELECT contacts.name, contacts.image_url, contacts.email, calls.id
+      SELECT contacts.name, contacts.email, calls.id
       FROM calls
       JOIN contacts ON calls.contact_id = contacts.id
       ORDER BY calls.date DESC
@@ -86,8 +74,7 @@ export async function fetchFilteredCalls(query: string, currentPage: number) {
         calls.date,
         calls.status,
         contacts.name,
-        contacts.email,
-        contacts.image_url
+        contacts.email
       FROM calls
       JOIN contacts ON calls.contact_id = contacts.id
       WHERE
@@ -194,7 +181,6 @@ export async function fetchFilteredContacts(
 		  contacts.id,
 		  contacts.name,
 		  contacts.email,
-		  contacts.image_url,
 		  COUNT(calls.id) AS total_calls,
 		  COUNT(CASE WHEN calls.status = 'pending' THEN 1 END) AS total_pending,
       COUNT(CASE WHEN calls.status = 'return' THEN 1 END) AS total_return,
@@ -204,7 +190,7 @@ export async function fetchFilteredContacts(
 		WHERE
 		  contacts.name ILIKE ${`%${query}%`} OR
         contacts.email ILIKE ${`%${query}%`}
-		GROUP BY contacts.id, contacts.name, contacts.email, contacts.image_url
+		GROUP BY contacts.id, contacts.name, contacts.email
 		ORDER BY contacts.name ASC
     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
 	  `;

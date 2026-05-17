@@ -24,10 +24,10 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Calls", href: "/dashboard/calls" },
+          { label: "Calls", href: "/calls" },
           {
             label: "Edit Call",
-            href: `/dashboard/calls/${id}/edit`,
+            href: `/calls/${id}/edit`,
             active: true,
           },
         ]}
