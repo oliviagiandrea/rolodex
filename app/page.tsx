@@ -24,16 +24,16 @@ export default function Page() {
             <span>Log in</span> <ArrowRightIcon className="w-5 md:w-6" />
           </Link>
         </div>
-        <div className="flex items-center justify-center p-6 md:w-3/5 md:px-28 md:py-12">
+        <div className="flex items-center justify-center p-6">
           <Image
-            src="/hero-desktop.png"
+            src="/hero.JPG"
             width={1000}
             height={760}
             className="hidden md:block"
             alt="Screenshots of the rolodex project showing desktop version"
           />
           <Image
-            src="/hero-mobile.png"
+            src="/hero.JPG"
             width={560}
             height={620}
             className="block md:hidden"
