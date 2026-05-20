@@ -1,10 +1,10 @@
-import { Suspense } from "react";
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { fetchCallsPages } from "@/app/lib/data";
-import { lusitana } from "@/app/ui/fonts";
 import { CreateCall } from "@/app/ui/calls/buttons";
-import Pagination from "@/app/ui/calls/pagination";
 import Table from "@/app/ui/calls/table";
+import { lusitana } from "@/app/ui/fonts";
+import Pagination from "@/app/ui/pagination";
 import Search from "@/app/ui/search";
 import { CallsTableSkeleton } from "@/app/ui/skeletons";
 

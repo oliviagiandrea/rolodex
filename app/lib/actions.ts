@@ -9,22 +9,41 @@ import { signIn } from "@/auth";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
 
-export type State = {
+export type CallState = {
   errors?: {
     contactId?: string[];
+    status?: string[];
+    notes?: string[];
+  };
+  message: string;
+};
+
+export type ContactState = {
+  errors?: {
     name?: string[];
     company?: string[];
     phone?: string[];
-    status?: string[];
   };
-  message?: string | null;
+  message: string;
 };
 
-const FormSchema = z.object({
+const CallFormSchema = z.object({
   id: z.string(),
   contactId: z.string({
     invalid_type_error: "Please select a contact.",
   }),
+  status: z.enum(["return", "pending", "lw"], {
+    invalid_type_error: "Please select a call status.",
+  }),
+  notes: z.string().optional(),
+  date: z.string(),
+});
+
+const CreateCall = CallFormSchema.omit({ id: true, date: true });
+const UpdateCall = CallFormSchema.omit({ id: true, date: true });
+
+const ContactFormSchema = z.object({
+  id: z.string(),
   name: z.string({
     invalid_type_error: "Please enter a name.",
   }),
@@ -34,24 +53,20 @@ const FormSchema = z.object({
   phone: z.string({
     invalid_type_error: "Please enter a phone number.",
   }),
-  status: z.enum(["return", "pending", "lw"], {
-    invalid_type_error: "Please select a call status.",
-  }),
-  notes: z.string().optional(),
-  date: z.string(),
 });
 
-const CreateCall = FormSchema.omit({ id: true, date: true });
-const UpdateCall = FormSchema.omit({ id: true, date: true });
+const CreateContact = ContactFormSchema.omit({ id: true });
+const UpdateContact = ContactFormSchema.omit({ id: true });
 
-export async function createCall(prevState: State, formData: FormData) {
+export async function createCall(
+  prevState: CallState | undefined,
+  formData: FormData,
+) {
   // Validate form using Zod
   const validatedFields = CreateCall.safeParse({
     contactId: formData.get("contactId"),
-    name: formData.get("name"),
-    company: formData.get("company"),
-    phone: formData.get("phone"),
     status: formData.get("status"),
+    notes: formData.get("notes"),
   });
 
   // If form validation fails, return errors early. Otherwise, continue.
@@ -63,15 +78,14 @@ export async function createCall(prevState: State, formData: FormData) {
   }
 
   // Prepare data for insertion into the database
-  const { contactId, name, company, phone, status, notes } =
-    validatedFields.data;
+  const { contactId, status, notes } = validatedFields.data;
   const date = new Date().toISOString().split("T")[0];
 
   // Insert data into the database
   try {
     await sql`
-      INSERT INTO calls (contact_id, contact_name, company, phone, status, notes, date)
-      VALUES (${contactId}, ${name}, ${company}, ${phone}, ${status}, ${notes ? notes : ""}, ${date})
+      INSERT INTO calls (contact_id, status, notes, date)
+      VALUES (${contactId}, ${status}, ${notes ?? ""}, ${date})
     `;
   } catch (error) {
     // If a database error occurs, return a more specific error.
@@ -85,17 +99,55 @@ export async function createCall(prevState: State, formData: FormData) {
   redirect("/calls");
 }
 
+export async function createContact(
+  prevState: ContactState | undefined,
+  formData: FormData,
+) {
+  // Validate form using Zod
+  const validatedFields = CreateContact.safeParse({
+    name: formData.get("name"),
+    company: formData.get("company"),
+    phone: formData.get("phone"),
+  });
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Create Call.",
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { name, company, phone } = validatedFields.data;
+
+  // Insert data into the database
+  try {
+    await sql`
+      INSERT INTO contacts (name, company, phone)
+      VALUES (${name}, ${company}, ${phone})
+    `;
+  } catch (error) {
+    // If a database error occurs, return a more specific error.
+    return {
+      message: "Database Error: Failed to Create Contact.",
+    };
+  }
+
+  // Revalidate the cache for the calls page and redirect the user.
+  revalidatePath("/contacts");
+  redirect("/contacts");
+}
+
 export async function updateCall(
   id: string,
-  prevState: State,
+  prevState: CallState | undefined,
   formData: FormData,
 ) {
   const validatedFields = UpdateCall.safeParse({
     contactId: formData.get("contactId"),
-    name: formData.get("name"),
-    company: formData.get("company"),
-    phone: formData.get("phone"),
     status: formData.get("status"),
+    notes: formData.get("notes"),
   });
 
   if (!validatedFields.success) {
@@ -105,13 +157,12 @@ export async function updateCall(
     };
   }
 
-  const { contactId, name, company, phone, status, notes } =
-    validatedFields.data;
+  const { contactId, status, notes } = validatedFields.data;
 
   try {
     await sql`
       UPDATE calls
-      SET contact_id = ${contactId}, contact_name=${name}, company = ${company}, phone = ${phone}, status = ${status}, notes = ${notes ? notes : ""}
+      SET contact_id = ${contactId}, status = ${status}, notes = ${notes ?? ""}
       WHERE id = ${id}
     `;
   } catch (error) {
@@ -122,9 +173,48 @@ export async function updateCall(
   redirect("/calls");
 }
 
+export async function updateContact(
+  id: string,
+  prevState: ContactState | undefined,
+  formData: FormData,
+) {
+  const validatedFields = UpdateContact.safeParse({
+    name: formData.get("name"),
+    company: formData.get("company"),
+    phone: formData.get("phone"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Update Call.",
+    };
+  }
+
+  const { name, company, phone } = validatedFields.data;
+
+  try {
+    await sql`
+      UPDATE contacts
+      SET name=${name}, company = ${company}, phone = ${phone}
+      WHERE id = ${id}
+    `;
+  } catch (error) {
+    return { message: "Database Error: Failed to Update Contact." };
+  }
+
+  revalidatePath("/contacts");
+  redirect("/contacts");
+}
+
 export async function deleteCall(id: string) {
   await sql`DELETE FROM calls WHERE id = ${id}`;
   revalidatePath("/calls");
+}
+
+export async function deleteContact(id: string) {
+  await sql`DELETE FROM contacts WHERE id = ${id}`;
+  revalidatePath("/contacts");
 }
 
 export async function authenticate(

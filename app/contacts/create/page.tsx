@@ -1,28 +1,25 @@
 import { Metadata } from "next";
-import { fetchContacts } from "@/app/lib/data";
 import Breadcrumbs from "@/app/ui/breadcrumbs";
-import Form from "@/app/ui/calls/create-form";
+import Form from "@/app/ui/contacts/create-form";
 
 export const metadata: Metadata = {
-  title: "Create Call",
+  title: "Create Contact",
 };
 
 export default async function Page() {
-  const contacts = await fetchContacts();
-
   return (
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Calls", href: "/calls" },
+          { label: "Contacts", href: "/contacts" },
           {
-            label: "Create Call",
-            href: "/calls/create",
+            label: "Create Contact",
+            href: "/contacts/create",
             active: true,
           },
         ]}
       />
-      <Form contacts={contacts} />
+      <Form />
     </main>
   );
 }

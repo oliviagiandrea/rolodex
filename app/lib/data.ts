@@ -1,9 +1,10 @@
 import postgres from "postgres";
 import {
-  ContactField,
-  ContactsTableType,
   CallForm,
   CallsTable,
+  ContactField,
+  ContactForm,
+  ContactsTableType,
 } from "./definitions";
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: "require" });
@@ -69,8 +70,13 @@ export async function fetchCallById(id: string) {
       SELECT
         calls.id,
         calls.contact_id,
-        calls.status
+        calls.status,
+        calls.notes,
+        contacts.name,
+        contacts.company,
+        contacts.phone
       FROM calls
+      JOIN contacts ON contacts.id = calls.contact_id
       WHERE calls.id = ${id};
     `;
 
@@ -78,6 +84,25 @@ export async function fetchCallById(id: string) {
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch call.");
+  }
+}
+
+export async function fetchContactById(id: string) {
+  try {
+    const contacts = await sql<ContactForm[]>`
+      SELECT
+        contacts.id,
+        contacts.name,
+        contacts.company,
+        contacts.phone
+      FROM contacts
+      WHERE contacts.id = ${id};
+    `;
+
+    return contacts[0];
+  } catch (error) {
+    console.error("Database Error:", error);
+    throw new Error("Failed to fetch contact.");
   }
 }
 

@@ -1,22 +1,19 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { fetchCallById, fetchContacts } from "@/app/lib/data";
+import { fetchContactById } from "@/app/lib/data";
 import Breadcrumbs from "@/app/ui/breadcrumbs";
-import Form from "@/app/ui/calls/edit-form";
+import Form from "@/app/ui/contacts/edit-form";
 
 export const metadata: Metadata = {
-  title: "Edit Call",
+  title: "Edit Contact",
 };
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const id = params.id;
-  const [call, contacts] = await Promise.all([
-    fetchCallById(id),
-    fetchContacts(),
-  ]);
+  const contact = await fetchContactById(id);
 
-  if (!call) {
+  if (!contact) {
     notFound();
   }
 
@@ -24,15 +21,15 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     <main>
       <Breadcrumbs
         breadcrumbs={[
-          { label: "Calls", href: "/calls" },
+          { label: "Contacts", href: "/contacts" },
           {
-            label: "Edit Call",
-            href: `/calls/${id}/edit`,
+            label: "Edit Contact",
+            href: `/contacts/${id}/edit`,
             active: true,
           },
         ]}
       />
-      <Form call={call} contacts={contacts} />
+      <Form contact={contact} />
     </main>
   );
 }

@@ -10,7 +10,6 @@ export type Contact = {
   name: string;
   company: string;
   phone: string;
-  notes: string;
 };
 
 export type Call = {
@@ -37,7 +36,7 @@ export type ContactsTableType = {
   name: string;
   company: string;
   phone: string;
-  notes: string;
+  date: string;
 };
 
 export type FormattedContactsTable = {
@@ -64,4 +63,11 @@ export type CallForm = {
   phone: string;
   status: "pending" | "return" | "lw";
   notes: string;
+};
+
+export type ContactForm = {
+  id: string;
+  name: string;
+  company: string;
+  phone: string;
 };

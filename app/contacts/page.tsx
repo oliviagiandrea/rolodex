@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import { fetchContactsPages } from "@/app/lib/data";
-import ContactsTable from "@/app/ui/contacts/table";
+import { CreateContact } from "@/app/ui/contacts/buttons";
+import Table from "@/app/ui/contacts/table";
 import { lusitana } from "@/app/ui/fonts";
-import Pagination from "@/app/ui/calls/pagination";
+import Pagination from "@/app/ui/pagination";
 import Search from "@/app/ui/search";
 import { CallsTableSkeleton } from "@/app/ui/skeletons";
 
@@ -29,9 +30,10 @@ export default async function Page(props: {
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 md:mt-8">
         <Search placeholder="Search contacts..." />
+        <CreateContact />
       </div>
       <Suspense key={query + currentPage} fallback={<CallsTableSkeleton />}>
-        <ContactsTable query={query} currentPage={currentPage} />
+        <Table query={query} currentPage={currentPage} />
       </Suspense>
       <div className="mt-5 flex w-full justify-center">
         <Pagination totalPages={totalPages} />
